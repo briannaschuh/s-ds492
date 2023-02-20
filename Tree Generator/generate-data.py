@@ -1,5 +1,5 @@
 import sys
-import tree_generator
+from tree_generator import data, generator
 import sample_expressions
 import sympy
 
@@ -33,18 +33,35 @@ if __name__ == "__main__":
     except IndexError: 
         print("The third argument specifes the name of the CSV file that will store all of the generated data. ")
         sys.exit(1)
-        
-        
-    
     
         
+    obj = generator(sys.argv[1])
+    tree = obj.generate_tree()
+    print(list(tree))
+    print(tree)
     
-        
-        
-        
+    count = 0
     
-        
+    print(tree.values)
     
+    for i in list(tree):
+        print(i.value)
+        print("left", i.left)
+        print("right", i.right)
+        print("we are now changing the value")
+        i.value = 1
+        print("new value", i.value)
+        
+    print(tree)
+    
+    #you can also use levelorder
+    
+    #NEXT STEPS: iterate through the binary tree
+    #leaves should be constants. internal nodes should be operators
+    #design an algo that is able to tell if an internal node should be an internal operator or not
+    
+    #use sympy to check if the expression is valid
+    #then we can start generating data
         
     
     ## Generate expressions
