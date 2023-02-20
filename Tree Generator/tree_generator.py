@@ -15,7 +15,7 @@ class data: #In charge of managing the data that is generated
         pass
         
 
-class symbols:
+class generator:
     
     def __init__(self, number_of_variables): #Initialize the class
         self.num_vars = number_of_variables #Number of variables in the function
@@ -40,6 +40,8 @@ class symbols:
     
     def random_binary(self): #pick a random binary operand
         pass
+    
+    
     
         
         #unary goes to a binary operation
