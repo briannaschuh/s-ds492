@@ -15,6 +15,6 @@ if __name__ == "__main__":
         print("The file does not exist. ")
         sys.exit(1)
         
-    data = 'data/' + sys.argv[1] #location of unhashed passwords dataset  
+    data = 'data/' + sys.argv[1] #location of the datasaet
     
-    extract_features(data) #function that generates the dataset
+    extract_features(data) #function that extracts the features
