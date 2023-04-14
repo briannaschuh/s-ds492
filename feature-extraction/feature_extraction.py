@@ -41,12 +41,12 @@ def extract_features(data_filepath, batch_size=10000):
     common_passwords = pd.read_csv("data/common_passwords.csv") # store the dataframe into a variable
     common_passwords_list = common_passwords["password"].tolist() # convert it to a list
     extracted_features_csv = data_filepath[:-4] + "_featureExtracted.csv" # generate the name of the output csv file
-    header = ["password", "length", "uppercase", "lowercase", "digits", "special", "entropy", "bigram_freq", "trigram_freq", "fourgram_freq", "levenshtein_distance"] # create the headers of the csv file
+    header = ["password", "strength", "length", "uppercase", "lowercase", "digits", "special", "entropy", "bigram_freq", "trigram_freq", "fourgram_freq", "levenshtein_distance"] # create the headers of the csv file
     with open(extracted_features_csv, "w") as f_out: # open the file containing the features
         f_out.write(",".join(header) + "\n") # write the headers
 
     scaler = MinMaxScaler() # initialize the MinMaxScaler
-    max_weak_password_length = max(len(p) for p in common_passwords_list) # find the length of the longest password in the common passwords list
+    max_common_password_length = len(max(common_passwords_list)) # find the length of the longest password in the common passwords list
     num_batches = len(data) // batch_size + 1 # process the dataset in batches
     for batch_idx in range(num_batches): # iterate through the number of batches
         start_idx = batch_idx * batch_size # calculate the start index of the batch 
@@ -62,15 +62,18 @@ def extract_features(data_filepath, batch_size=10000):
             trigram_freq = ngram_frequency(password, 3) # calculate tri-gram
             fourgram_freq = ngram_frequency(password, 4) # calculate four-gram
             levenshtein_distance = min_levenshtein_distance(password, common_passwords_list) # calculate the levenshtein distance
-            levenshtein_distance_normalized = levenshtein_distance / max(len(password), max_weak_password_length) # normalize the levenshtein distance
+            levenshtein_distance_normalized = levenshtein_distance / max(len(password), max_common_password_length) # normalize the levenshtein distance
             features = [length, uppercase, lowercase, digits, special, entropy, bigram_freq, trigram_freq, fourgram_freq, levenshtein_distance_normalized] # store the features in a list
             features_list.append(features) # append the features to the list
         features_array = np.array(features_list) # convert the list into an array
         features_to_scale = features_array[:, :-1] # scale the features but exclude the last feature (levenshtein_distance_normalized) since it was already scaled
         scaler.partial_fit(features_to_scale) # fits the scaler based on minimum and maximum values based on the most recent batch
         features_normalized = scaler.transform(features_to_scale) # apply the scaler to features
-        for i, row in enumerate(batch_data.iterrows()): # add the features to the output file
+        for index, row in enumerate(batch_data.iterrows()): # add the features to the output file
             password = row[1]["password"] # store the password
+            strength = row[1]["strength"] # store the strength
             with open(extracted_features_csv, "a") as f_out: # open the password
-                f_out.write(f"{password},{','.join(map(str, features_normalized[i]))},{features_array[i, -1]}\n") # write to the file
+                f_out.write(f"{password},{strength},{','.join(map(str, features_normalized[index]))},{features_array[index, -1]}\n") # write to the file
+
+    print("We have extracted all of the features")
 
