@@ -24,7 +24,7 @@ def classification(password):
     else:
         score += 2
     # rule 4: special characters
-    num_special_chars = len(re.findall(r'[!@#$%^&*()]', password))
+    num_special_chars = len(re.findall(r'[!#$%&\'()*+\-./:;<=>?@\[\]^_`{|}~¡]', password))
     if num_special_chars <= 1:
         score += 1
     else:
