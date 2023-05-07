@@ -28,6 +28,18 @@ def character_repetition(password):
     repetitions += current_repetition - 1
     return repetitions, weight_sum
 
+def most_common_char_type_count(password):
+    char_types = [sum(1 for c in password if c.isupper()), sum(1 for c in password if c.islower()), sum(1 for c in password if c.isdigit()), sum(1 for c in password if not c.isalnum())]
+    return max(char_types)
+
+def char_frequency_ratio(password):
+    char_freq = Counter(password)
+    freq_values = list(char_freq.values())
+    return max(freq_values) / min(freq_values) if len(freq_values) > 1 else 1
+
+def password_length_ratio_to_unique(password):
+    return len(password) / len(set(password))
+
 # count the different type of characters
 def count_chars(password):
     uppercase = sum(1 for c in password if c.isupper()) # uppercase
@@ -87,14 +99,14 @@ def convert_time_units(time_in_seconds):
         return f"{time_in_minutes:.2f} minutes"
     return f"{time_in_seconds:.2f} seconds" # if neither of these conditions hold then return the seconds as is
 
-# extract the features from the passwords
+
 def extract_features(data_filepath, batch_size=10000):
     data = pd.read_csv(data_filepath, on_bad_lines='skip') # read in the csv file
     data = data.dropna() # remove any empty or NaN password entries
     common_passwords = pd.read_csv("data/common_passwords.csv") # store the dataframe into a variable
     common_passwords_list = common_passwords["password"].tolist() # convert it to a list
     extracted_features_csv = data_filepath[:-4] + "_featureExtracted.csv" # generate the name of the output csv file
-    header = ["password", "strength", "length", "uppercase", "lowercase", "digits", "special", "entropy", "bigram_freq", "trigram_freq", "fourgram_freq", "levenshtein_distance", "char_repetition_weight_sum", "cracking_time"] # create the headers of the csv file
+    header = ["password", "strength", "length", "uppercase", "lowercase", "digits", "special", "entropy", "bigram_freq", "trigram_freq", "fourgram_freq", "levenshtein_distance", "char_repetition_weight_sum", "consecutive_char_type_count", "most_common_char_type_count", "char_frequency_ratio", "password_length_ratio_to_unique", "cracking_time"] # create the headers of the csv file
     with open(extracted_features_csv, "w") as f_out: # open the file containing the features
         f_out.write(",".join(header) + "\n") # write the headers
     scaler = MinMaxScaler() # initialize the MinMaxScaler
@@ -106,18 +118,22 @@ def extract_features(data_filepath, batch_size=10000):
         batch_data = data.iloc[start_idx:end_idx] #subset the dataframe
         features_list = [] # initalize the list of features
         for index, row in batch_data.iterrows(): # iterate through each index and row
-            password = row["password"] # store the password in a temporary variable
-            length = len(password) # store the length of the password
-            uppercase, lowercase, digits, special = count_chars(password) # get the number of uppercase characters, lowercase characters, digits, and special characters of the password
-            entropy = password_entropy(password) # calculate the password entropy
-            bigram_freq = ngram_frequency(password, 2) # calculate bi-gram
-            trigram_freq = ngram_frequency(password, 3) # calculate tri-gram
-            fourgram_freq = ngram_frequency(password, 4) # calculate four-gram
-            levenshtein_distance = min_levenshtein_distance(password, common_passwords_list) # calculate the levenshtein distance
-            levenshtein_distance_normalized = levenshtein_distance / max(len(password), max_common_password_length) # normalize the levenshtein distance
-            repetition, char_repetition_weight_sum = character_repetition(password)  # calculate character repetition weight sum
-            cracking_time_estimate = cracking_time(password, 10_000_000_000)  # calculate estimated cracking time
-            features = [length, uppercase, lowercase, digits, special, entropy, bigram_freq, trigram_freq, fourgram_freq, levenshtein_distance_normalized, char_repetition_weight_sum, cracking_time_estimate] # store the features in a list
+            password = row["password"]
+            length = len(password)
+            uppercase, lowercase, digits, special = count_chars(password)
+            entropy = password_entropy(password)
+            bigram_freq = ngram_frequency(password, 2)
+            trigram_freq = ngram_frequency(password, 3)
+            fourgram_freq = ngram_frequency(password, 4)
+            levenshtein_distance = min_levenshtein_distance(password, common_passwords_list)
+            levenshtein_distance_normalized = levenshtein_distance / max(len(password), max_common_password_length)
+            repetition, char_repetition_weight_sum = character_repetition(password)
+            consecutive_char_type = consecutive_char_type_count(password)
+            most_common_char_type = most_common_char_type_count(password)
+            char_freq_ratio = char_frequency_ratio(password)
+            password_length_ratio_to_unique_val = password_length_ratio_to_unique(password)
+            cracking_time_estimate = cracking_time(password, 10_000_000_000)
+            features = [length, uppercase, lowercase, digits, special, entropy, bigram_freq, trigram_freq, fourgram_freq, levenshtein_distance_normalized, char_repetition_weight_sum, consecutive_char_type, most_common_char_type, char_freq_ratio, password_length_ratio_to_unique_val, cracking_time_estimate] # store the features in a list
             features_list.append(features) # append the features to the list
         features_array = np.array(features_list) # convert the list into an array
         if not features_list: # if the list is empty, break
@@ -129,6 +145,7 @@ def extract_features(data_filepath, batch_size=10000):
             password = row[1]["password"] # store the password
             strength = row[1]["strength"] # store the strength
             with open(extracted_features_csv, "a") as f_out: # open the password
-                f_out.write(f"{password},{strength},{','.join(map(str, features_normalized[index]))},{features_array[index, -2]},{features_array[index, -1]}\n") # write to the file
+                f_out.write(f"{password},{strength},{','.join(map(str, features_array[index]))}\n")  # write to the file
+
 
     print("We have extracted all of the features")
