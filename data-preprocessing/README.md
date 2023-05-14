@@ -1,10 +1,10 @@
-This a program that pre-processes the data so that it can be inputted directly into the supervised and unsupervised models. 
+This a program that preprocesses the data so that it can be inputted directly into the supervised and unsupervised models. 
 
-# Examples of how to pre-process the data:
+# Examples of how to preprocess the data:
 
 ## Subset a dataset
 
-./Preprocess subset file_name sampl_size 
+./Preprocess subset file_name sample_size 
 
 ./Preprocess subset 000webhost.txt 700000
 
