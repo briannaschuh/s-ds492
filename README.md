@@ -1,8 +1,9 @@
 # Exploring Password Complexity: A Comparative Analysis of Supervised and Unsupervised Approaches for Password Strength Classification
 
-![Password Complexity](link_to_your_image_here)
+This project presents a comprehensive analysis of password complexity using both supervised and unsupervised machine learning techniques. By leveraging advanced algorithms, this project aims to enhance password strength classification and contribute to the development of more robust password policies for enhanced user security.
 
-Welcome to the **Exploring Password Complexity** repository! This project presents a comprehensive analysis of password complexity using both supervised and unsupervised machine learning techniques. By leveraging advanced algorithms, we aim to enhance password strength classification and contribute to the development of more robust password policies for enhanced user security.
+This is a senior thesis completed in partial fulfilment for the requirements of the degree of Bachelor of Science in Statistics and 
+Data Science at Yale University.
 
 ## Table of Contents
 - [Abstract](#abstract)
